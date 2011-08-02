@@ -1,0 +1,7 @@
+i.gitignore
+development.config.php
+production.config.php
+*.zip
+assets/*
+protected/runtime/*
+*.sqlite
