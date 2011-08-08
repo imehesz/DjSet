@@ -36,6 +36,7 @@ class Crate extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('create_date', 'numerical', 'integerOnly'=>true),
+            array( 'name', 'required' ),
 			array('name', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -51,6 +52,7 @@ class Crate extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'songs'=>array(self::MANY_MANY, 'Song', 'assoc_song_crate(crate_id,song_id)' ),
 		);
 	}
 
@@ -65,6 +67,12 @@ class Crate extends CActiveRecord
 			'create_date' => 'Create Date',
 		);
 	}
+
+    public function beforeValidate()
+    {
+        $this->create_date = time();
+        return parent::beforeValidate();
+    }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.

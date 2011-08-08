@@ -36,6 +36,7 @@ class AssocSongCrate extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
+			array('song_id, crate_id', 'required' ),
 			array('song_id, crate_id, create_date', 'numerical', 'integerOnly'=>true),
 			array('sort_order', 'numerical'),
 			// The following rule is used by search().
@@ -52,6 +53,8 @@ class AssocSongCrate extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'song'  => array( self::BELONGS_TO, 'Song', 'song_id' ),
+            'crate' => array( self::BELONGS_TO, 'Crate', 'crate_id' ),
 		);
 	}
 
@@ -67,6 +70,17 @@ class AssocSongCrate extends CActiveRecord
 			'create_date' => 'Create Date',
 		);
 	}
+
+    public function beforeValidate()
+    {
+        if( $this->isNewRecord )
+        {
+            $this->create_date  = time();
+            $this->sort_order   = '0.00';
+        }
+
+        return parent::beforeValidate();
+    }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.

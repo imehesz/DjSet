@@ -31,7 +31,7 @@ class SongController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update', 'autocomplete'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -127,6 +127,8 @@ class SongController extends Controller
 	 */
 	public function actionIndex()
 	{
+        Yii::app()->clientScript->registerScript( 'baseurl', 'var baseurl="' . Yii::app()->request->baseurl . '";', CClientScript::POS_HEAD  );
+        Yii::app()->clientScript->registerScript( 'crateurl', 'var crateurl="' . Yii::app()->controller->createUrl( '/crate' ) . '";', CClientScript::POS_HEAD  );
 		$dataProvider=new CActiveDataProvider('Song');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
@@ -160,6 +162,21 @@ class SongController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
+
+    public function actionAutocomplete() {
+        $res =array();
+
+        if (isset($_GET['term'])) {
+            // http://www.yiiframework.com/doc/guide/database.dao
+            $qtxt ="SELECT title FROM song WHERE title LIKE :title";
+            $command =Yii::app()->db->createCommand($qtxt);
+            $command->bindValue(":title", '%'.$_GET['term'].'%', PDO::PARAM_STR);
+            $res =$command->queryColumn();
+        }
+
+        echo CJSON::encode($res);
+        Yii::app()->end();
+    }
 
 	/**
 	 * Performs the AJAX validation.

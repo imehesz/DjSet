@@ -17,17 +17,30 @@ class UserIdentity extends CUserIdentity
 	 */
 	public function authenticate()
 	{
-		$users=array(
-			// username => password
-			'demo'=>'demo',
-			'admin'=>'admin',
-		);
-		if(!isset($users[$this->username]))
+		if( ! isset( Yii::app()->params['auth'] ) )
+		{
+			throw new CHttpException( '401', 'Oops, you do NOT have the right settings in place :/' );
+		}
+
+		if( ! Yii::app()->params['auth']['ips'] == '*' || ( is_array( Yii::app()->params['auth']['ips'] ) && ! in_array( $_SERVER['REMOTE_ADDR'], Yii::app()->params['auth']['ips'] ) ) )
+		{
+			throw new CHttpException( '401', 'Oops, your location is not supported :/' );
+		}
+
+		if(!isset(Yii::app()->params['auth']['users'][$this->username]))
+		{
 			$this->errorCode=self::ERROR_USERNAME_INVALID;
-		else if($users[$this->username]!==$this->password)
+		}
+		else if(Yii::app()->params['auth']['users'][$this->username]!==md5( $this->password) )
+		{
 			$this->errorCode=self::ERROR_PASSWORD_INVALID;
+		}
 		else
+		{
 			$this->errorCode=self::ERROR_NONE;
+		}
+
 		return !$this->errorCode;
+
 	}
 }

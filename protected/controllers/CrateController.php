@@ -26,12 +26,8 @@ class CrateController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('*'),
-			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create', 'update', 'view', 'index', 'ajaxgetcratesforsong', 'ajaxaddsongtocrate', 'autocomplete', 'ajaxgetsongsforcrate' ),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -44,16 +40,117 @@ class CrateController extends Controller
 		);
 	}
 
+    /**
+     * actionAjaxGetCratesForSong  
+     * 
+     * @param mixed $id 
+     * @access public
+     * @return void
+     */
+    public function actionAjaxGetCratesForSong( $id )
+    {
+        $song = Song::model()->findByPk( $id );
+        if( $song && ! empty( $song->crates ) )
+        {
+            foreach( $song->crates as $crate )
+            {   
+                echo CHtml::link( $crate->name, Yii::app()->controller->createUrl( '/crate/view', array( 'id' => $crate->id ) ) ) . ' ';
+            }
+
+            die();
+        }
+
+        die( 'fail' );
+    }
+
+    public function actionAjaxAddSongToCrate( $sid, $cratename )
+    {
+        if( $sid && $cratename )
+        {
+            // first we have to make sure we have this song
+            $song = Song::model()->findByPk( $sid );
+            if( $song )
+            {
+                // let's see if we have this crate
+                $crate = Crate::model()->find( 'name=:name', array( ':name' => $cratename ) );
+                if( ! $crate )
+                {
+                    $crate = new Crate;
+                    $crate->name = $cratename;
+                    $crate->save();
+                }
+
+                if( $crate )
+                {
+                    // we double check there might be a connection already
+                    $songtocrate = AssocSongCrate::model()->find( 'crate_id=:crate_id AND song_id=:song_id', array( ':crate_id' => $crate->id, ':song_id' => $song->id ) );
+
+                    if( ! $songtocrate )
+                    {
+                        $songtocrate = new AssocSongCrate;
+                        $songtocrate->song_id   = $song->id;
+                        $songtocrate->crate_id  = $crate->id;
+                        $songtocrate->save();
+                    }
+
+                    if( $songtocrate )
+                    {
+                        die( 'success' );
+                    }
+                }
+            }
+        }
+
+        die( 'fail' );
+    }
+
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
 	public function actionView($id)
 	{
+        $criteria = new CDbCriteria;
+        $criteria->condition    = 't.id=:crate_id';
+        $criteria->join         = 'LEFT JOIN assoc_song_crate AS sc ON t.id=sc.crate_id';
+        $criteria->order        = 'sc.sort_order';
+        $criteria->params       = array( ':crate_id' => $id );
+
+        $model = Crate::model()->find( $criteria );
+            
+        Yii::app()->clientScript->registerScript( 'crateurl', 'var crateurl="' . Yii::app()->controller->createUrl( '/crate' )  . '";', CClientScript::POS_HEAD );
+
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=> $model,
 		));
 	}
+
+    public function actionAjaxGetSongsForCrate( $id )
+    {
+        
+        $criteria = new CDbCriteria;
+        $criteria->join         = 'LEFT JOIN assoc_song_crate AS sc ON t.id=sc.crate_id';
+        $criteria->condition    = 't.id=:crate_id';
+        $criteria->order        = 'sc.sort_order';
+        $criteria->params       = array( ':crate_id' => $id );
+
+        $model = Crate::model()->find( $criteria );
+
+        if( $model )
+        {
+            if( ! empty( $model->songs ) )
+            {
+                $this->renderPartial( '_songsforcrate', array( 'songs' => $model->songs ) );
+                die();
+            }
+            else
+            {
+                die( '-' );
+            }
+        }
+
+        die( 'fail' );
+    }
 
 	/**
 	 * Creates a new model.
@@ -160,6 +257,21 @@ class CrateController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
+
+    public function actionAutocomplete() {
+        $res =array();
+
+        if (isset($_GET['term'])) {
+            // http://www.yiiframework.com/doc/guide/database.dao
+            $qtxt ="SELECT name FROM crate WHERE name LIKE :name";
+            $command =Yii::app()->db->createCommand($qtxt);
+            $command->bindValue(":name", '%'.$_GET['term'].'%', PDO::PARAM_STR);
+            $res =$command->queryColumn();
+        }
+
+        echo CJSON::encode($res);
+        Yii::app()->end();
+    }
 
 	/**
 	 * Performs the AJAX validation.

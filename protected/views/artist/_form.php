@@ -15,11 +15,14 @@
 		<?php echo $form->error($model,'name'); ?>
 	</div>
 
+<?php /*
 	<div class="row">
 		<?php echo $form->labelEx($model,'create_date'); ?>
 		<?php echo $form->textField($model,'create_date'); ?>
 		<?php echo $form->error($model,'create_date'); ?>
 	</div>
+    */ 
+?>
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

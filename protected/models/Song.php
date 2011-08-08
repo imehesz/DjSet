@@ -14,6 +14,14 @@
  */
 class Song extends CActiveRecord
 {
+    /**
+     * artist_name  
+     * 
+     * @var mixed
+     * @access public
+     */
+    public $artist_name;
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return Song the static model class
@@ -39,6 +47,7 @@ class Song extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
+            array( 'artist_id,artist_name', 'required' ),
 			array('artist_id, year, bpm, create_date', 'numerical', 'integerOnly'=>true),
 			array('title', 'length', 'max'=>255),
 			array('source', 'safe'),
@@ -56,8 +65,39 @@ class Song extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'artist' => array( self::BELONGS_TO, 'Artist', 'artist_id' ),
+            'crates'=>array(self::MANY_MANY, 'Crate', 'assoc_song_crate(song_id, crate_id)'),
 		);
 	}
+
+    public function beforeValidate()
+    {
+        // get artist by name
+        $artist = Artist::model()->findByAttributes( array( 'name' => $this->artist_name ) );
+
+        // if we don't have it, we create it ...
+        if( empty( $artist ) )
+        {
+            $artist = new Artist;
+            $artist->name = $this->artist_name;
+            $artist->save();
+        }
+
+        // at this point we should have an artist, if we don't throw an errir
+        if( ! $artist )
+        {
+            throw new CHttpException( '404', 'Could not save artist, please try again!' );
+        }
+
+        $this->artist_id = $artist->id;
+
+        if( $this->isNewRecord )
+        {
+            $this->create_date = time();
+        }
+
+        return parent::beforeValidate();
+    }
 
 	/**
 	 * @return array customized attribute labels (name=>label)

@@ -35,6 +35,7 @@ class Artist extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
+            array( 'name', 'required' ),
 			array('create_date', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>255),
 			// The following rule is used by search().
@@ -51,6 +52,7 @@ class Artist extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'songs' => array( self::HAS_MANY, 'Song', 'artist_id' )
 		);
 	}
 
@@ -85,4 +87,10 @@ class Artist extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+
+    public function beforeValidate()
+    {
+        $this->create_date = time();
+        return parent::beforeValidate();
+    }
 }

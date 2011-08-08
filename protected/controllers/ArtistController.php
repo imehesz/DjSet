@@ -31,7 +31,7 @@ class ArtistController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array('create','update', 'autocomplete'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -50,8 +50,27 @@ class ArtistController extends Controller
 	 */
 	public function actionView($id)
 	{
+        $model = $this->loadModel( $id );
+        $songs_data_provider = null;
+
+        if( $model )
+        {
+            $songs_data_provider=new CActiveDataProvider('Song', array(
+                    'criteria'=>array(
+                        'condition'=>'artist_id=:artist_id',
+                        'order'=>'title',
+                        //'with'=>array('author'),
+                        'params' => array( ':artist_id' => $model->id )
+                    ),
+                    'pagination'=>array(
+                        'pageSize'=>20,
+                        ),
+                    ));
+        }
+
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model' => $model,
+            'songs' => $songs_data_provider
 		));
 	}
 
@@ -160,6 +179,21 @@ class ArtistController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
+
+    public function actionAutocomplete() {
+        $res =array();
+
+        if (isset($_GET['term'])) {
+            // http://www.yiiframework.com/doc/guide/database.dao
+            $qtxt ="SELECT name FROM artist WHERE name LIKE :username";
+            $command =Yii::app()->db->createCommand($qtxt);
+            $command->bindValue(":username", '%'.$_GET['term'].'%', PDO::PARAM_STR);
+            $res =$command->queryColumn();
+        }
+
+        echo CJSON::encode($res);
+        Yii::app()->end();
+    }
 
 	/**
 	 * Performs the AJAX validation.

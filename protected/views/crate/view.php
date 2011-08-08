@@ -13,13 +13,11 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Crate #<?php echo $model->id; ?></h1>
+<h1><?php echo $model->name; ?></h1>
+<p class="hint" style="color:#777;"><?php echo date( 'M j, Y', $model->create_date ) ?></p>
 
-<?php $this->widget('zii.widgets.CDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		'id',
-		'name',
-		'create_date',
-	),
-)); ?>
+<?php if( ! empty( $model->songs ) ): ?>
+    <h2>Songs</h2>
+    <?php Yii::app()->clientScript->registerScript( 'getsongs', 'getSongsForCrate(' . $model->id . ');', CClientScript::POS_END ); ?>
+    <div id="songs_for_crate_<?php echo $model->id ?>"></div>
+<?php endif; ?>

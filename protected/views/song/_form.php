@@ -10,26 +10,48 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'artist_id'); ?>
-		<?php echo $form->textField($model,'artist_id'); ?>
-		<?php echo $form->error($model,'artist_id'); ?>
+		<?php echo $form->labelEx($model,'artist_name'); ?>
+        <?php
+            $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+                'name'=> 'Song[artist_name]',
+                'value'=>'',
+                'source'=>$this->createUrl( '/artist/autocomplete'),
+                // additional javascript options for the autocomplete plugin
+                'options'=>array(
+                    'showAnim'=>'fold',
+                    ),
+                ));
+        ?>
+		<?php echo $form->error($model,'artist_name'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'title'); ?>
-		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>255)); ?>
+        <?php
+            $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+                'name'=> 'Song[title]',
+                'value'=>'',
+                'source'=>$this->createUrl( '/song/autocomplete'),
+                // additional javascript options for the autocomplete plugin
+                'options'=>array(
+                    'showAnim'=>'fold',
+                    ),
+                ));
+        ?>
+
 		<?php echo $form->error($model,'title'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'year'); ?>
-		<?php echo $form->textField($model,'year'); ?>
+		<?php echo $form->textField($model,'year', array( 'size' => '4', 'maxlength' => 4 ) ); ?>
 		<?php echo $form->error($model,'year'); ?>
 	</div>
 
 	<div class="row">
+        <?php if( $model->bpm == null ){ $model->bpm = 100; } ?>
 		<?php echo $form->labelEx($model,'bpm'); ?>
-		<?php echo $form->textField($model,'bpm'); ?>
+		<?php echo $form->dropDownList($model,'bpm', range( 0, 200 ) ); ?>
 		<?php echo $form->error($model,'bpm'); ?>
 	</div>
 
@@ -38,13 +60,6 @@
 		<?php echo $form->textArea($model,'source',array('rows'=>6, 'cols'=>50)); ?>
 		<?php echo $form->error($model,'source'); ?>
 	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'create_date'); ?>
-		<?php echo $form->textField($model,'create_date'); ?>
-		<?php echo $form->error($model,'create_date'); ?>
-	</div>
-
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

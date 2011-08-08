@@ -13,6 +13,7 @@
 
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/main.css" />
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/form.css" />
+    <?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
 
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
@@ -29,8 +30,8 @@
 		<?php $this->widget('zii.widgets.CMenu',array(
 			'items'=>array(
 				array('label'=>'Home', 'url'=>array('/site/index')),
-				array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
-				array('label'=>'Contact', 'url'=>array('/site/contact')),
+				array('label'=>'Songs', 'url'=>array('/song') ),
+				array('label'=>'Crates', 'url'=>array('/crate'), 'visible' => ! Yii::app()->user->isGuest ),
 				array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
 				array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
 			),
@@ -51,5 +52,6 @@
 
 </div><!-- page -->
 
+    <script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/djset.js"></script>
 </body>
 </html>
