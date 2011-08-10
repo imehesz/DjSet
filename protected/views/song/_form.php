@@ -14,7 +14,7 @@
         <?php
             $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
                 'name'=> 'Song[artist_name]',
-                'value'=>'',
+                'value'=> $model->isNewRecord ? '' : $model->artist->name,
                 'source'=>$this->createUrl( '/artist/autocomplete'),
                 // additional javascript options for the autocomplete plugin
                 'options'=>array(
@@ -30,7 +30,7 @@
         <?php
             $this->widget('zii.widgets.jui.CJuiAutoComplete', array(
                 'name'=> 'Song[title]',
-                'value'=>'',
+                'value' => $model->title,
                 'source'=>$this->createUrl( '/song/autocomplete'),
                 // additional javascript options for the autocomplete plugin
                 'options'=>array(
