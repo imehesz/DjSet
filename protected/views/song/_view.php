@@ -1,5 +1,5 @@
 <div class="view">
-
+    <div style="float:left;width:300px;">
 	<b><?php echo CHtml::encode($data->getAttributeLabel('title')); ?>:</b>
 	<?php echo CHtml::link( CHtml::encode($data->title), Yii::app()->controller->createUrl( '/song/view', array( 'id' => $data->id ) ) ); ?>
     <?php echo $data->year ? '(' . CHtml::encode( $data->year ) . ')' : 'n/a'; ?>
@@ -15,14 +15,10 @@
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('source')); ?>:</b>
 	<?php echo CHtml::encode($data->source); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('create_date')); ?>:</b>
-	<?php echo date( 'm/d/Y', $data->create_date ); ?>
-	<br />
-
+    </div>
+    <div>
     <?php if( ! Yii::app()->user->isGuest ) : ?>
-        <div style="margin-top:5px;">
+        <div>
             <?php echo CHtml::link( 'Add to Crate', 'javascript:void(0);', array( 'onclick' => 'javascript:jQuery( "#add_to_crate_wrapper_' . $data->id . '").toggle();' ) ); ?>
             <span id="add_to_crate_wrapper_<?php echo $data->id?>" style="display:none;">
                 <?php
@@ -46,5 +42,6 @@
         </div>
         <?php Yii::app()->clientScript->registerScript( 'getcrates' . $data->id, 'getCratesForSong(' . $data->id . ');', CClientScript::POS_END  ); ?>
     <?php endif; ?>
-
+    </div>
+    <div style="clear:both;"></div>
 </div>

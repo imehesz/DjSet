@@ -13,18 +13,12 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Song #<?php echo $model->id; ?></h1>
-<?php /*
+<h1><?php echo $model->title; ?></h1>
+<h2>by <?php echo CHtml::link( $model->artist->name, Yii::app()->controller->createUrl( '/artist/view', array( 'id' => $model->artist->id ) ) ); ?> from <?php echo $model->year ?></h2>
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
-		'id',
-		'artist_id',
-		'title',
-		'year',
 		'bpm',
 		'source',
-		'create_date',
 	),
 )); ?>
-*/ ?>
